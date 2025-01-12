@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Matching Game</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Memory Matching Game</h1>
+            <p>Flip the cards and match all the pairs!</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="game-board" class="game-board"></div>
+        <div id="game-info">
+            <p>Moves: <span id="moves">0</span></p>
+            <button id="restart-button">Restart</button>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Memory Game. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const icons = ["🍎", "🍌", "🍇", "🍓", "🍒", "🍍", "🍑", "🥝"];
+        let cards = [...icons, ...icons]; // Duplicate for pairs
+        let flippedCards = [];
+        let matchedCards = 0;
+        let moves = 0;
+
+        const gameBoard = document.getElementById("game-board");
+        const movesDisplay = document.getElementById("moves");
+        const restartButton = document.getElementById("restart-button");
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createBoard() {
+            gameBoard.innerHTML = "";
+            cards = shuffle(cards);
+            cards.forEach((icon, index) => {
+                const card = document.createElement("div");
+                card.classList.add("card");
+                card.setAttribute("data-icon", icon);
+                card.setAttribute("data-id", index);
+                card.innerHTML = `<div class="card-inner">
+                    <div class="card-front"></div>
+                    <div class="card-back">${icon}</div>
+                </div>`;
+                card.addEventListener("click", flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (this.classList.contains("flipped") || flippedCards.length === 2) return;
+
+            this.classList.add("flipped");
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            moves++;
+            movesDisplay.textContent = moves;
+
+            const [card1, card2] = flippedCards;
+            if (card1.getAttribute("data-icon") === card2.getAttribute("data-icon")) {
+                flippedCards = [];
+                matchedCards += 2;
+
+                if (matchedCards === cards.length) {
+                    setTimeout(() => alert("You matched all pairs!"), 500);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove("flipped");
+                    card2.classList.remove("flipped");
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        restartButton.addEventListener("click", () => {
+            moves = 0;
+            matchedCards = 0;
+            flippedCards = [];
+            movesDisplay.textContent = moves;
+            createBoard();
+        });
+
+        createBoard();
+    </script>
+</body>
+</html>
